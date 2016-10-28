@@ -200,6 +200,23 @@ describe Hydra::AccessControls::Permissions do
               )
             end
           end
+
+          context "when replacing an existing permission" do
+            let(:replace) do
+              [
+                { id: permissions_id, type: "group", access: "read", name: "group1", _destroy: '1' },
+                { id: permissions_id, type: "group", access: "edit", name: "group1", }
+              ]
+            end
+            before do
+              subject.update permissions_attributes: [{ type: "group", access: "read", name: "group1" }]
+              subject.update permissions_attributes: replace
+            end
+
+            it "leaves the permissions unchanged" do
+              expect(reloaded).to contain_exactly({name: "jcoyne", type: "person", access: "edit"}, {name: "group1", type: "group", access: "edit"})
+            end
+          end
         end
 
         context "to a falsy value" do

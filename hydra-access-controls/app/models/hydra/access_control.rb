@@ -20,14 +20,23 @@ module Hydra
 
     def permissions_attributes=(attribute_list)
       raise ArgumentError unless attribute_list.is_a? Array
+      process_deletes(attribute_list) + process_edits(attribute_list)
+    end
+
+    def process_deletes(attribute_list)
       attribute_list.each do |attributes|
-        if attributes.key?(:id)
-          obj = relationship.find(attributes[:id])
-          if has_destroy_flag?(attributes)
-            obj.destroy
-          else
-            obj.update(attributes.except(:id, '_destroy'))
-          end
+        next unless has_destroy_flag?(attributes)
+        obj = relationship.find(attributes[:id])
+        obj.destroy if attributes.key?(:id)      
+      end
+    end
+
+    def process_edits(attribute_list)
+      attribute_list.each do |attributes|
+        next if has_destroy_flag?(attributes)
+        obj = relationship.find(attributes.delete(:id))
+        if obj && obj.persisted?
+          obj.update(attributes.except(:_destroy))
         else
           relationship.create(attributes)
         end
