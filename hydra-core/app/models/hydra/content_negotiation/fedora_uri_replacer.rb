@@ -16,35 +16,35 @@ module Hydra::ContentNegotiation
 
     private
 
-    attr_reader :fedora_base_uri, :graph, :replacer
+      attr_reader :fedora_base_uri, :graph, :replacer
 
-    def replace_uri(uri)
-      id = ActiveFedora::Base.uri_to_id(uri)
-      RDF::URI(replacer.call(id, graph))
-    end
+      def replace_uri(uri)
+        id = ActiveFedora::Base.uri_to_id(uri)
+        RDF::URI(replacer.call(id, graph))
+      end
 
-    def replaced_objects
-      replaced_subjects.map do |statement|
-        if fedora_uri?(statement.object)
-          RDF::Statement.from([statement.subject, statement.predicate, replace_uri(statement.object)])
-        else
-          statement
+      def replaced_objects
+        replaced_subjects.map do |statement|
+          if fedora_uri?(statement.object)
+            RDF::Statement.from([statement.subject, statement.predicate, replace_uri(statement.object)])
+          else
+            statement
+          end
         end
       end
-    end
 
-    def fedora_uri?(subject)
-      subject.to_s.start_with?(fedora_base_uri.to_s)
-    end
+      def fedora_uri?(subject)
+        subject.to_s.start_with?(fedora_base_uri.to_s)
+      end
 
-    def replaced_subjects
-      graph.each_statement.to_a.map do |s|
-        if fedora_uri?(s.subject)
-          RDF::Statement.from([replace_uri(s.subject), s.predicate, s.object])
-        else
-          s
+      def replaced_subjects
+        graph.each_statement.to_a.map do |s|
+          if fedora_uri?(s.subject)
+            RDF::Statement.from([replace_uri(s.subject), s.predicate, s.object])
+          else
+            s
+          end
         end
       end
-    end
   end
 end

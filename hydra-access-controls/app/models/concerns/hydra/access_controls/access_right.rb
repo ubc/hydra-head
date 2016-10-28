@@ -24,7 +24,6 @@ module Hydra
       delegate :persisted?, :permissions, :visibility, to: :permissionable
       protected :persisted?, :permissions, :visibility
 
-
       def open_access?
         return true if has_visibility_text_for?(VISIBILITY_TEXT_VALUE_PUBLIC)
         # We don't want to know if its under embargo, simply does it have a date.
@@ -46,7 +45,7 @@ module Hydra
           has_visibility_text_for?(VISIBILITY_TEXT_VALUE_AUTHENTICATED)
       end
 
-      alias :authenticated_only_access? :authenticated_only?
+      alias authenticated_only_access? authenticated_only?
 
       def private?
         return false if open_access?
@@ -55,7 +54,7 @@ module Hydra
         true
       end
 
-      alias :private_access? :private?
+      alias private_access? private?
 
       private
 

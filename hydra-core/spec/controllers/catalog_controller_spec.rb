@@ -1,42 +1,40 @@
 require 'spec_helper'
 
 describe CatalogController do
-
   before do
-    session[:user]='bob'
+    session[:user] = 'bob'
   end
 
-  it "should use CatalogController" do
-    expect(controller).to be_an_instance_of CatalogController
+  it "uses CatalogController" do
+    expect(controller).to be_an_instance_of described_class
   end
 
   describe "configuration" do
-    let(:config) { CatalogController.blacklight_config }
+    let(:config) { described_class.blacklight_config }
     describe "search_builder_class" do
-      subject {config.search_builder_class }
+      subject { config.search_builder_class }
       it { is_expected.to eq ::SearchBuilder }
     end
   end
 
   describe "index" do
     describe "access controls" do
-      before(:all) do
-        fq = "read_access_group_ssim:public OR edit_access_group_ssim:public OR discover_access_group_ssim:public"
-        solr_opts = { fq: fq }
-        response = ActiveFedora::SolrService.instance.conn.get('select', params: solr_opts)
-        @public_only_results = Blacklight::Solr::Response.new(response, solr_opts)
+      let(:solr_opts) do
+        { fq: "read_access_group_ssim:public OR edit_access_group_ssim:public OR discover_access_group_ssim:public" }
       end
+      let(:response) { ActiveFedora::SolrService.instance.conn.get('select', params: solr_opts) }
+      let(:public_only_results) { Blacklight::Solr::Response.new(response, solr_opts) }
 
-      it "should only return public documents if role does not have permissions" do
+      it "onlies return public documents if role does not have permissions" do
         allow(controller).to receive(:current_user).and_return(nil)
         get :index
-        expect(assigns(:document_list).count).to eq @public_only_results.docs.count
+        expect(assigns(:document_list).count).to eq public_only_results.docs.count
       end
 
-      it "should return documents if the group names need to be escaped" do
-        allow(RoleMapper).to receive(:roles).and_return(["abc/123","cde/567"])
+      it "returns documents if the group names need to be escaped" do
+        allow(RoleMapper).to receive(:roles).and_return(["abc/123", "cde/567"])
         get :index
-        expect(assigns(:document_list).count).to eq @public_only_results.docs.count
+        expect(assigns(:document_list).count).to eq public_only_results.docs.count
       end
     end
   end
@@ -47,8 +45,8 @@ describe CatalogController do
         allow(controller).to receive(:enforce_show_permissions)
       end
       context "with no asset" do
-        it "should return a not found response code" do
-          get 'show', :id => "test", :format => :nt
+        it "returns a not found response code" do
+          get 'show', id: "test", format: :nt
 
           expect(response).to be_not_found
         end
@@ -66,23 +64,23 @@ describe CatalogController do
         let(:related) do
           ActiveFedora::Base.create
         end
-        it "should be able to negotiate jsonld" do
-          get 'show', :id => asset.id, :format => :jsonld
+        it "is able to negotiate jsonld" do
+          get 'show', id: asset.id, format: :jsonld
 
           expect(response).to be_success
           expect(response.headers['Content-Type']).to include("application/ld+json")
           graph = RDF::Reader.for(:jsonld).new(response.body)
           expect(graph.statements.to_a.length).to eq 3
         end
-        it "should be able to negotiate ttl" do
-          get 'show', :id => asset.id, :format => :ttl
-          
+        it "is able to negotiate ttl" do
+          get 'show', id: asset.id, format: :ttl
+
           expect(response).to be_success
           graph = RDF::Reader.for(:ttl).new(response.body)
           expect(graph.statements.to_a.length).to eq 3
         end
-        it "should return an n-triples graph with just the content put in" do
-          get 'show', :id => asset.id, :format => :nt
+        it "returns an n-triples graph with just the content put in" do
+          get 'show', id: asset.id, format: :nt
 
           graph = RDF::Reader.for(:ntriples).new(response.body)
           statements = graph.statements.to_a
@@ -91,10 +89,10 @@ describe CatalogController do
         end
         context "with a configured subject converter" do
           before do
-            Hydra.config.id_to_resource_uri = lambda { |id, _| "http://hydra.box/catalog/#{id}" }
-            get 'show', :id => asset.id, :format => :nt
+            Hydra.config.id_to_resource_uri = ->(id, _) { "http://hydra.box/catalog/#{id}" }
+            get 'show', id: asset.id, format: :nt
           end
-          it "should convert it" do
+          it "converts it" do
             graph = RDF::Graph.new << RDF::Reader.for(:ntriples).new(response.body)
             title_statement = graph.query([nil, RDF::Vocab::DC.title, nil]).first
             related_statement = graph.query([nil, RDF::Vocab::DC.isReferencedBy, nil]).first
@@ -108,7 +106,7 @@ describe CatalogController do
 
   describe "filters" do
     describe "show" do
-      it "should trigger enforce_show_permissions" do
+      it "triggers enforce_show_permissions" do
         allow(controller).to receive(:current_user).and_return(nil)
         expect(controller).to receive(:enforce_show_permissions)
         get :show, id: 'test:3'
@@ -121,16 +119,16 @@ describe CatalogController do
     let(:email_read_access) { "read_access@example.com" }
     let(:future_date) { 2.days.from_now.strftime("%Y-%m-%dT%H:%M:%SZ") }
 
-    let(:embargoed_object) {
+    let(:embargoed_object) do
       doc = SolrDocument.new(id: '123',
-              "edit_access_person_ssim" => [email_edit_access],
-              "read_access_person_ssim" => [email_read_access],
-              "embargo_release_date_dtsi" => future_date)
+                             "edit_access_person_ssim" => [email_edit_access],
+                             "read_access_person_ssim" => [email_read_access],
+                             "embargo_release_date_dtsi" => future_date)
       solr = Blacklight.default_index.connection
       solr.add(doc)
       solr.commit
       doc
-    }
+    end
 
     before do
       controller.params = { id: embargoed_object.id }
@@ -141,9 +139,9 @@ describe CatalogController do
       let(:user) { User.new email: email_edit_access }
 
       it 'allows the user to view an embargoed object' do
-        expect {
+        expect do
           controller.send(:enforce_show_permissions, {})
-        }.not_to raise_error
+        end.not_to raise_error
       end
     end
 
@@ -151,11 +149,10 @@ describe CatalogController do
       let(:user) { User.new email: email_read_access }
 
       it 'denies access to the embargoed object' do
-        expect {
+        expect do
           controller.send(:enforce_show_permissions, {})
-        }.to raise_error Hydra::AccessDenied, "This item is under embargo.  You do not have sufficient access privileges to read this document."
+        end.to raise_error Hydra::AccessDenied, "This item is under embargo.  You do not have sufficient access privileges to read this document."
       end
     end
   end
-
 end

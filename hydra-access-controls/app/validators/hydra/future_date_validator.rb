@@ -1,6 +1,5 @@
 module Hydra
   class FutureDateValidator < ActiveModel::EachValidator
-
     def validate_each(record, attribute, value)
       if value.present?
         begin

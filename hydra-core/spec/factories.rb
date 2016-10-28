@@ -7,5 +7,4 @@ FactoryGirl.define do
     email
     password 'password'
   end
-
 end

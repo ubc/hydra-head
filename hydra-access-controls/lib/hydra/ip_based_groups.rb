@@ -25,34 +25,33 @@ module Hydra
         end
     end
 
-      def self.groups
-        load_groups.fetch('groups').map { |h| Group.new(h) }
+    def self.groups
+      load_groups.fetch('groups').map { |h| Group.new(h) }
+    end
+
+    def self.filename
+      'config/hydra_ip_range.yml'
+    end
+
+    def self.load_groups
+      require 'yaml'
+
+      file = File.join(Rails.root, filename)
+
+      unless File.exist?(file)
+        raise "ip-range configuration file not found. Expected: #{file}."
       end
 
-      def self.filename
-        'config/hydra_ip_range.yml'
+      begin
+        yml = YAML.load_file(file)
+      rescue
+        raise("#{filename} was found, but could not be parsed.\n")
+      end
+      unless yml.is_a? Hash
+        raise("#{filename} was found, but was blank or malformed.\n")
       end
 
-      def self.load_groups
-        require 'yaml'
-
-        file = File.join(Rails.root, filename)
-
-        unless File.exists?(file)
-          raise "ip-range configuration file not found. Expected: #{file}."
-        end
-
-        begin
-          yml = YAML::load_file(file)
-        rescue
-          raise("#{filename} was found, but could not be parsed.\n")
-        end
-        unless yml.is_a? Hash
-          raise("#{filename} was found, but was blank or malformed.\n")
-        end
-
-        yml.fetch(Rails.env)
-      end
-
+      yml.fetch(Rails.env)
+    end
   end
 end

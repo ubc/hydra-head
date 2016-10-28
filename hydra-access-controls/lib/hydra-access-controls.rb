@@ -26,7 +26,7 @@ module Hydra
       yield @config if block_given?
       @config
     end
-    alias :config :configure
+    alias config configure
   end
 
   class Engine < Rails::Engine

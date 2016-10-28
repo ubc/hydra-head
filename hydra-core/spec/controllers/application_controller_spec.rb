@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'IpBasedAbilitySpec' do
+describe ApplicationController do
   controller do
     include Hydra::Controller::IpBasedAbility
   end

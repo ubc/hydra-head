@@ -23,7 +23,7 @@ module Hydra::Controller::ControllerBehavior
   def deny_access(exception)
     if exception.action == :edit
       redirect_to(main_app.url_for(action: 'show'), alert: exception.message)
-    elsif current_user and current_user.persisted?
+    elsif current_user && current_user.persisted?
       redirect_to main_app.root_path, alert: exception.message
     else
       session['user_return_to'.freeze] = request.url

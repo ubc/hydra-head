@@ -56,7 +56,6 @@ module Hydra
         lease && lease.active?
       end
 
-
       # If changing away from embargo or lease, this will deactivate the lease/embargo before proceeding.
       # The lease_visibility! and embargo_visibility! methods rely on this to deactivate the lease when applicable.
       def visibility=(value)
@@ -66,7 +65,7 @@ module Hydra
         super
       end
 
-      def apply_embargo(release_date, visibility_during=nil, visibility_after=nil)
+      def apply_embargo(release_date, visibility_during = nil, visibility_after = nil)
         self.embargo_release_date = release_date
         self.visibility_during_embargo = visibility_during unless visibility_during.nil?
         self.visibility_after_embargo = visibility_after unless visibility_after.nil?
@@ -93,7 +92,7 @@ module Hydra
         end
         if visibility != expected_visibility
           failure_message << "visibility should be #{expected_visibility} but it is currently #{visibility}.  Call embargo_visibility! on this object to repair."
-          self.errors[:embargo] << failure_message
+          errors[:embargo] << failure_message
           return false
         end
         true
@@ -122,13 +121,13 @@ module Hydra
         end
         if visibility != expected_visibility
           failure_message << "visibility should be #{expected_visibility} but it is currently #{visibility}.  Call lease_visibility! on this object to repair."
-          self.errors[:lease] << failure_message
+          errors[:lease] << failure_message
           return false
         end
         true
       end
 
-      def apply_lease(release_date, visibility_during=nil, visibility_after=nil)
+      def apply_lease(release_date, visibility_during = nil, visibility_after = nil)
         self.lease_expiration_date = release_date
         self.visibility_during_lease = visibility_during unless visibility_during.nil?
         self.visibility_after_lease = visibility_after unless visibility_after.nil?
@@ -165,7 +164,6 @@ module Hydra
         def deactivate_lease?(value)
           lease && lease.lease_expiration_date && value != lease.visibility_during_lease
         end
-
     end
   end
 end

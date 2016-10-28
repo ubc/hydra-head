@@ -9,4 +9,3 @@ module Hydra::AccessControls
     end
   end
 end
-

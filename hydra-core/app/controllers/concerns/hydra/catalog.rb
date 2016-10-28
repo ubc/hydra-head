@@ -6,7 +6,7 @@ module Hydra::Catalog
   # Action-specific enforcement
   # Controller "before" filter for enforcing access controls on show actions
   # @param [Hash] opts (optional, not currently used)
-  def enforce_show_permissions(opts={})
+  def enforce_show_permissions(opts = {})
     # The "super" method comes from blacklight-access_controls.
     # It will check the read permissions for the record.
     # By default, it will return a Hydra::PermissionsSolrDocument

@@ -6,31 +6,31 @@ rescue LoadError
 end
 Bundler::GemHelper.install_tasks
 
-APP_ROOT= File.dirname(__FILE__)
+APP_ROOT = File.dirname(__FILE__)
 require 'solr_wrapper'
 require 'fcrepo_wrapper'
 require 'active_fedora/rake_support'
 require 'engine_cart/rake_task'
 
 desc "Run Continuous Integration"
-task :ci => ['engine_cart:generate'] do
+task ci: ['engine_cart:generate'] do
   ENV['environment'] = "test"
   with_test_server do
     Rake::Task['spec'].invoke
   end
 end
 
-task :default => [:ci]
+task default: [:ci]
 
 directory 'pkg'
 
-FRAMEWORKS = ['hydra-access-controls', 'hydra-core']
+FRAMEWORKS = ['hydra-access-controls', 'hydra-core'].freeze
 
 root    = File.expand_path('../', __FILE__)
 version = File.read("#{root}/HYDRA_VERSION").strip
 tag     = "v#{version}"
 
-(FRAMEWORKS  + ['hydra-head']).each do |framework|
+(FRAMEWORKS + ['hydra-head']).each do |framework|
   namespace framework do
     gem     = "pkg/#{framework}-#{version}.gem"
     gemspec = "#{framework}.gemspec"
@@ -52,7 +52,7 @@ tag     = "v#{version}"
         pre = pre ? pre.inspect : "nil"
 
         ruby.gsub!(/^(\s*)VERSION = ".*?"$/, "\\1VERSION = \"#{version}\"")
-        raise "Could not insert VERSION in #{file}" unless $1
+        raise "Could not insert VERSION in #{file}" unless Regexp.last_match(1)
         File.open(file, 'w') { |f| f.write ruby }
       end
     end
@@ -63,23 +63,23 @@ tag     = "v#{version}"
       sh cmd
     end
 
-    task :build => [:clean, gem]
-    task :install => :build do
+    task build: [:clean, gem]
+    task install: :build do
       sh "gem install #{gem}"
     end
 
-    task :prep_release => [:ensure_clean_state, :build]
+    task prep_release: [:ensure_clean_state, :build]
 
-    task :push => :build do
+    task push: :build do
       sh "gem push #{gem}"
     end
   end
 end
 
 namespace :all do
-  task :build   => FRAMEWORKS.map { |f| "#{f}:build"   } + ['hydra-head:build']
-  task :install => FRAMEWORKS.map { |f| "#{f}:install" } + ['hydra-head:install']
-  task :push    => FRAMEWORKS.map { |f| "#{f}:push"    } + ['hydra-head:push']
+  task build: FRAMEWORKS.map { |f| "#{f}:build" } + ['hydra-head:build']
+  task install: FRAMEWORKS.map { |f| "#{f}:install" } + ['hydra-head:install']
+  task push: FRAMEWORKS.map { |f| "#{f}:push" } + ['hydra-head:push']
 
   task :ensure_clean_state do
     unless `git status -s | grep -v HYDRA_VERSION | grep -v HISTORY.textile`.strip.empty?
@@ -108,7 +108,7 @@ namespace :all do
     sh "git push --tags"
   end
 
-  task :release => %w(ensure_clean_state build commit tag push)
+  task release: %w(ensure_clean_state build commit tag push)
 end
 
 desc "run all specs"
@@ -135,12 +135,10 @@ begin
   require 'yard/rake/yardoc_task'
   project_root = File.expand_path(".")
   doc_destination = File.join(project_root, 'doc')
-  if !File.exists?(doc_destination)
-    FileUtils.mkdir_p(doc_destination)
-  end
+  FileUtils.mkdir_p(doc_destination) unless File.exist?(doc_destination)
 
   YARD::Rake::YardocTask.new(:doc) do |yt|
-    yt.files   = ['*/lib/**/*.rb', project_root+"*", '*/app/**/*.rb']
+    yt.files = ['*/lib/**/*.rb', project_root + "*", '*/app/**/*.rb']
 
     yt.options << "-m" << "textile"
     yt.options << "--protected"

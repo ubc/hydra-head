@@ -1,12 +1,12 @@
 module Hydra::AccessControls
   class Lease < ActiveFedora::Base
-    property :visibility_during_lease, predicate: Hydra::ACL.visibilityDuringLease, multiple:false
-    property :visibility_after_lease, predicate: Hydra::ACL.visibilityAfterLease, multiple:false
-    property :lease_expiration_date, predicate: Hydra::ACL.leaseExpirationDate, multiple:false
+    property :visibility_during_lease, predicate: Hydra::ACL.visibilityDuringLease, multiple: false
+    property :visibility_after_lease, predicate: Hydra::ACL.visibilityAfterLease, multiple: false
+    property :lease_expiration_date, predicate: Hydra::ACL.leaseExpirationDate, multiple: false
     property :lease_history, predicate: Hydra::ACL.leaseHistory
 
     def lease_expiration_date=(date)
-      date = DateTime.parse(date) if date.kind_of?(String)
+      date = DateTime.parse(date) if date.is_a?(String)
       super(date)
     end
 
@@ -36,11 +36,12 @@ module Hydra::AccessControls
     end
 
     protected
+
       # Create the log message used when deactivating a lease
       # This method may be overriden in order to transform the values of the passed parameters.
       def lease_history_message(state, deactivate_date, expiration_date, visibility_during, visibility_after)
         I18n.t 'hydra.lease.history_message', state: state, deactivate_date: deactivate_date, expiration_date: expiration_date,
-          visibility_during: visibility_during, visibility_after: visibility_after
+                                              visibility_during: visibility_during, visibility_after: visibility_after
       end
   end
 end

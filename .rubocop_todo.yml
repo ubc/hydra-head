@@ -1,0 +1,50 @@
+require: rubocop-rspec
+
+Lint/Void:
+  Exclude:
+    - 'hydra-core/spec/support/matchers/solr_matchers.rb'
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+
+Metrics/ClassLength:
+  Exclude:
+
+Metrics/ParameterLists:
+  Exclude:
+
+Metrics/ModuleLength:
+  Exclude:
+
+Metrics/MethodLength:
+  Exclude:
+
+Style/LineEndConcatenation:
+  Exclude:
+
+Style/PredicateName:
+  Exclude:
+
+Rails/Output:
+  Exclude:
+
+Rails/HasAndBelongsToMany:
+  Exclude:
+
+RSpec/NamedSubject:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Max: 7 
+  Exclude:
+    - 'hydra-core/spec/controllers/downloads_controller_spec.rb'
+
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+RSpec/AnyInstance:
+  Exclude:
+    - 'hydra-access-controls/spec/unit/ability_spec.rb'
+    - 'hydra-access-controls/spec/unit/ability_spec.rb'
+    - 'hydra-core/spec/controllers/application_controller_spec.rb'
+    - 'hydra-core/spec/controllers/downloads_controller_spec.rb'

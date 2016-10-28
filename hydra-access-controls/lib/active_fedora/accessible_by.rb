@@ -6,9 +6,9 @@ ActiveFedora::QueryMethods.module_eval do
 
   def accessible_by(ability, action = :index)
     permission_types = case action
-      when :index then [:discover, :read, :edit]
-      when :show, :read then [:read, :edit]
-      when :update, :edit, :create, :new, :destroy then [:edit]
+                       when :index then [:discover, :read, :edit]
+                       when :show, :read then [:read, :edit]
+                       when :update, :edit, :create, :new, :destroy then [:edit]
     end
 
     filters = gated_discovery_filters(permission_types, ability).join(" OR ")
@@ -17,5 +17,5 @@ ActiveFedora::QueryMethods.module_eval do
 end
 
 ActiveFedora::Querying.module_eval do
-  delegate :accessible_by, :to=>:all
+  delegate :accessible_by, to: :all
 end

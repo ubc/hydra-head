@@ -4,21 +4,21 @@ class Sample
   cattr_accessor :objects
   self.objects = {}
 
-  def self.create(params={})
+  def self.create(_params = {})
     obj = Sample.new
     obj.save
     obj
   end
 
-  def save()
+  def save
     @pid ||= "sample:#{(rand * 1000).to_i}"
     self.class.objects[@pid] = self
   end
 
   def update_attributes(attributes)
     attributes.each do |k, v|
-      instance_variable_set "@#{k.to_s}".to_sym, v
-      
+      instance_variable_set "@#{k}".to_sym, v
+
       self.class.send :attr_accessor, k
     end
   end
@@ -27,7 +27,5 @@ class Sample
     objects[pid]
   end
 
-  def pid
-    @pid
-  end
+  attr_reader :pid
 end

@@ -21,7 +21,7 @@ describe BlacklightHelper do
 
     context "with a single valued field" do
       let(:field_name) { 'has_model_s' }
-      it "should support single valued fields" do
+      it "supports single valued fields" do
         expect(helper.document_partial_name('has_model_s' => "Chicken")).to eq "chicken"
       end
     end

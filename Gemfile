@@ -1,6 +1,12 @@
 source "https://rubygems.org"
 
-gem 'rspec-its'
+group :development, :test do
+  gem 'rspec-its'
+  gem 'rubocop', '~> 0.42.0'
+  gem 'rubocop-rspec', '~> 1.5'
+end
+
+
 # Specify gem dependencies in hydra-head.gemspec
 gemspec
 

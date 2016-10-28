@@ -5,9 +5,7 @@ module Hydra::WithDepositor
   def apply_depositor_metadata(depositor)
     depositor_id = depositor.respond_to?(:user_key) ? depositor.user_key : depositor
 
-    if respond_to? :depositor
-      self.depositor = depositor_id
-    end
+    self.depositor = depositor_id if respond_to? :depositor
     self.edit_users += [depositor_id]
     true
   end

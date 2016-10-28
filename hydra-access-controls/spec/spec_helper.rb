@@ -11,7 +11,7 @@ Hydra::Engine.config.autoload_paths.each { |path| $LOAD_PATH.unshift path }
 
 require 'byebug' unless ENV['CI']
 
-if ENV['COVERAGE'] and RUBY_VERSION =~ /^1.9/
+if ENV['COVERAGE'] && RUBY_VERSION =~ /^1.9/
   require 'simplecov'
   require 'simplecov-rcov'
 
@@ -52,4 +52,3 @@ RSpec.configure do |config|
     ActiveFedora::Cleaner.clean!
   end
 end
-

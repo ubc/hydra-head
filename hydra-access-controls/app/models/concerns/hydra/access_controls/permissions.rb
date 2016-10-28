@@ -6,7 +6,7 @@ module Hydra
 
       included do
         belongs_to :access_control, predicate: ::ACL.accessControl, class_name: 'Hydra::AccessControl'
-        before_destroy do |obj|
+        before_destroy do |_obj|
           access_control.destroy unless access_control.nil?
         end
         after_save do
@@ -355,103 +355,103 @@ module Hydra
 
       protected
 
-      def has_destroy_flag?(hash)
-        %w(1 true).include?(hash['_destroy'].to_s)
-      end
+        def has_destroy_flag?(hash)
+          %w(1 true).include?(hash['_destroy'].to_s)
+        end
 
       private
 
-      # @param [Symbol] permission either :discover, :read or :edit
-      # @param [Symbol] type either :person or :group
-      # @param [Array<String>] values Values to set
-      # @param [Array<String>] changeable Values we are allowed to change
-      def set_entities(permission, type, values, changeable)
-        (changeable - values).each do |entity|
-          for_destroy = search_by_type_and_mode(type, permission_to_uri(permission)).select { |p| p.agent_name == entity }
-          permissions.delete(for_destroy)
-        end
+        # @param [Symbol] permission either :discover, :read or :edit
+        # @param [Symbol] type either :person or :group
+        # @param [Array<String>] values Values to set
+        # @param [Array<String>] changeable Values we are allowed to change
+        def set_entities(permission, type, values, changeable)
+          (changeable - values).each do |entity|
+            for_destroy = search_by_type_and_mode(type, permission_to_uri(permission)).select { |p| p.agent_name == entity }
+            permissions.delete(for_destroy)
+          end
 
-        values.each do |agent_name|
-          exists = search_by_type_and_mode(type, permission_to_uri(permission)).select { |p| p.agent_name == agent_name }
-          permissions.build(name: agent_name, access: permission.to_s, type: type) unless exists.present?
-        end
-      end
-
-      def permission_to_uri(permission)
-        case permission.to_s
-        when 'read'
-          ::ACL.Read
-        when 'edit'
-          ::ACL.Write
-        when 'discover'
-          Hydra::ACL.Discover
-        else
-          raise "Invalid permission #{permission.inspect}"
-        end
-      end
-
-      # @param [Symbol] type (either :group or :person)
-      # @return [Array<Permission>]
-      def search_by_type(type)
-        case type
-        when :group
-          permissions.to_a.select { |p| group_agent?(p.agent) }
-        when :person
-          permissions.to_a.select { |p| person_agent?(p.agent) }
-        end
-      end
-
-      # @param [Symbol] type either :group or :person
-      # @param [::RDF::URI] mode One of the permissions modes, e.g. ACL.Write, ACL.Read, etc.
-      # @return [Array<Permission>]
-      def search_by_type_and_mode(type, mode)
-        case type
-        when :group
-          search_by_mode(mode) { |agent| group_agent?(agent) }
-        when :person
-          search_by_mode(mode) { |agent| person_agent?(agent) }
-        end
-      end
-
-      # @param [RDF::URI] mode One of the permissions modes, e.g. ACL.Write, ACL.Read, etc.
-      # @yieldparam [Array<ActiveFedora::Base>] agent the agent type assertions
-      # @return [Array<Permission>] list of permissions where the mode is as selected, the block evaluates to true and the target is not marked for delete
-      def search_by_mode(mode)
-        permissions.to_a.select do |p|
-          yield(p.agent) && !p.marked_for_destruction? && p.mode.first.rdf_subject == mode
-        end
-      end
-
-      def person_permissions
-        search_by_type(:person)
-      end
-
-      def group_permissions
-        search_by_type(:group)
-      end
-
-      def group_agent?(agent)
-        raise 'no agent' unless agent.present?
-        agent.first.rdf_subject.to_s.start_with?(GROUP_AGENT_URL_PREFIX)
-      end
-
-      def person_agent?(agent)
-        raise 'no agent' unless agent.present?
-        agent.first.rdf_subject.to_s.start_with?(PERSON_AGENT_URL_PREFIX)
-      end
-
-      # Removes any permissions if both a delete and an update are found for the same id
-      # or if a delete is present without an id.
-      def remove_bad_deletes(collection)
-        collection.delete_if { |permission| (has_destroy_flag?(permission) && !permission.has_key?(:id)) }
-        collection.each do |permission|
-          next unless has_destroy_flag?(permission)
-          delete_id = permission.fetch(:id, nil)
-           if collection.map { |c| c if c.fetch(:id, nil) == delete_id }.compact.count > 1
-            collection.delete_if { |permission| permission.fetch(:id, nil) == delete_id }
+          values.each do |agent_name|
+            exists = search_by_type_and_mode(type, permission_to_uri(permission)).select { |p| p.agent_name == agent_name }
+            permissions.build(name: agent_name, access: permission.to_s, type: type) unless exists.present?
           end
         end
-      end
+
+        def permission_to_uri(permission)
+          case permission.to_s
+          when 'read'
+            ::ACL.Read
+          when 'edit'
+            ::ACL.Write
+          when 'discover'
+            Hydra::ACL.Discover
+          else
+            raise "Invalid permission #{permission.inspect}"
+          end
+        end
+
+        # @param [Symbol] type (either :group or :person)
+        # @return [Array<Permission>]
+        def search_by_type(type)
+          case type
+          when :group
+            permissions.to_a.select { |p| group_agent?(p.agent) }
+          when :person
+            permissions.to_a.select { |p| person_agent?(p.agent) }
+          end
+        end
+
+        # @param [Symbol] type either :group or :person
+        # @param [::RDF::URI] mode One of the permissions modes, e.g. ACL.Write, ACL.Read, etc.
+        # @return [Array<Permission>]
+        def search_by_type_and_mode(type, mode)
+          case type
+          when :group
+            search_by_mode(mode) { |agent| group_agent?(agent) }
+          when :person
+            search_by_mode(mode) { |agent| person_agent?(agent) }
+          end
+        end
+
+        # @param [RDF::URI] mode One of the permissions modes, e.g. ACL.Write, ACL.Read, etc.
+        # @yieldparam [Array<ActiveFedora::Base>] agent the agent type assertions
+        # @return [Array<Permission>] list of permissions where the mode is as selected, the block evaluates to true and the target is not marked for delete
+        def search_by_mode(mode)
+          permissions.to_a.select do |p|
+            yield(p.agent) && !p.marked_for_destruction? && p.mode.first.rdf_subject == mode
+          end
+        end
+
+        def person_permissions
+          search_by_type(:person)
+        end
+
+        def group_permissions
+          search_by_type(:group)
+        end
+
+        def group_agent?(agent)
+          raise 'no agent' unless agent.present?
+          agent.first.rdf_subject.to_s.start_with?(GROUP_AGENT_URL_PREFIX)
+        end
+
+        def person_agent?(agent)
+          raise 'no agent' unless agent.present?
+          agent.first.rdf_subject.to_s.start_with?(PERSON_AGENT_URL_PREFIX)
+        end
+
+        # Removes any permissions if both a delete and an update are found for the same id
+        # or if a delete is present without an id.
+        def remove_bad_deletes(collection)
+          collection.delete_if { |permission| (has_destroy_flag?(permission) && !permission.key?(:id)) }
+          collection.each do |permission|
+            next unless has_destroy_flag?(permission)
+            delete_id = permission.fetch(:id, nil)
+            if collection.map { |c| c if c.fetch(:id, nil) == delete_id }.compact.count > 1
+              collection.delete_if { |permission| permission.fetch(:id, nil) == delete_id }
+           end
+          end
+        end
     end
   end
 end

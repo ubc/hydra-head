@@ -11,7 +11,7 @@ module Hydra
     end
 
     def export_as_jsonld
-      clean_graph.dump(:jsonld, :standard_prefixes => true)
+      clean_graph.dump(:jsonld, standard_prefixes: true)
     end
 
     def export_as_ttl
@@ -20,16 +20,16 @@ module Hydra
 
     private
 
-    def clean_graph
-      @clean_graph ||= clean_graph_repository.find(id)
-    end
+      def clean_graph
+        @clean_graph ||= clean_graph_repository.find(id)
+      end
 
-    def clean_graph_repository
-      CleanGraphRepository.new(connection)
-    end
+      def clean_graph_repository
+        CleanGraphRepository.new(connection)
+      end
 
-    def connection
-      ActiveFedora.fedora.clean_connection
-    end
+      def connection
+        ActiveFedora.fedora.clean_connection
+      end
   end
 end

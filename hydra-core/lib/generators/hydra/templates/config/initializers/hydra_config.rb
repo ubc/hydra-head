@@ -17,6 +17,8 @@ Hydra.configure do |config|
   # config.permissions.lease.expiration_date = ActiveFedora::SolrQueryBuilder.solr_name("lease_expiration_date", :stored_sortable, type: :date)
   #
   #
+  # TODO: Is this relevant anymore?
   # Specify the user model
-  <%= '# ' if model_name == 'User' %>config.user_model = '<%= model_name %>'
+  # <%= '# ' if model_name == 'User' %>config.user_model = '<%= model_name %>'
+  # Generates: # config.user_model = '#{model_name.classify}'
 end

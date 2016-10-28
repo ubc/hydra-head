@@ -50,34 +50,34 @@ module Hydra::AccessControls
 
     protected
 
-    def parsed_agent
-      @parsed_agent ||= agent.first.rdf_subject.to_s.sub(AGENT_URL_PREFIX, '').split('#')
-    end
+      def parsed_agent
+        @parsed_agent ||= agent.first.rdf_subject.to_s.sub(AGENT_URL_PREFIX, '').split('#')
+      end
 
-    def build_agent(name, type)
-      raise "Can't build agent #{inspect}" unless name && type
-      self.agent = case type
-                   when 'group'
-                     Agent.new(::RDF::URI.new("#{GROUP_AGENT_URL_PREFIX}##{name}"))
-                   when 'person'
-                     Agent.new(::RDF::URI.new("#{PERSON_AGENT_URL_PREFIX}##{name}"))
-                   else
-                     raise ArgumentError, "Unknown agent type #{type.inspect}"
-                   end
-    end
+      def build_agent(name, type)
+        raise "Can't build agent #{inspect}" unless name && type
+        self.agent = case type
+                     when 'group'
+                       Agent.new(::RDF::URI.new("#{GROUP_AGENT_URL_PREFIX}##{name}"))
+                     when 'person'
+                       Agent.new(::RDF::URI.new("#{PERSON_AGENT_URL_PREFIX}##{name}"))
+                     else
+                       raise ArgumentError, "Unknown agent type #{type.inspect}"
+                     end
+      end
 
-    def build_access(access)
-      raise "Can't build access #{inspect}" unless access
-      self.mode = case access
-                  when 'read'
-                    Mode.new(::ACL.Read)
-                  when 'edit'
-                    Mode.new(::ACL.Write)
-                  when 'discover'
-                    Mode.new(Hydra::ACL.Discover)
-                  else
-                    raise ArgumentError, "Unknown access #{access.inspect}"
-                  end
-    end
+      def build_access(access)
+        raise "Can't build access #{inspect}" unless access
+        self.mode = case access
+                    when 'read'
+                      Mode.new(::ACL.Read)
+                    when 'edit'
+                      Mode.new(::ACL.Write)
+                    when 'discover'
+                      Mode.new(Hydra::ACL.Discover)
+                    else
+                      raise ArgumentError, "Unknown access #{access.inspect}"
+                    end
+      end
   end
 end

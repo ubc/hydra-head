@@ -1,7 +1,6 @@
 module Hydra
   class AccessControl < ActiveFedora::Base
-
-    before_destroy do |obj|
+    before_destroy do |_obj|
       contains.destroy_all
     end
 
@@ -52,7 +51,7 @@ module Hydra
       # delegate find.
       def find(id)
         return to_a.find { |record| record.id == id } if @relationship.loaded?
-        
+
         unless id.start_with?(@owner.id)
           raise ArgumentError, "requested ACL (#{id}) is not a member of #{@owner.id}"
         end

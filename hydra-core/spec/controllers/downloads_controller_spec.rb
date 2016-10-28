@@ -10,25 +10,26 @@ describe DownloadsController do
   end
 
   describe "routing" do
-    it "should route" do
-      assert_recognizes( {:controller=>"downloads", :action=>"show", "id"=>"test1"}, "/downloads/test1?filename=my%20dog.jpg" )
+    it "routes" do
+      assert_recognizes({ :controller => "downloads", :action => "show", "id" => "test1" }, "/downloads/test1?filename=my%20dog.jpg")
     end
   end
 
   describe "with a file" do
+    let(:user) { User.create(email: 'email@example.com', password: 'password') }
+
     before do
       class ContentHolder < ActiveFedora::Base
         include Hydra::AccessControls::Permissions
         has_subresource 'thumbnail'
       end
-      @user = User.new.tap {|u| u.email = 'email@example.com'; u.password = 'password'; u.save}
     end
     let(:obj) do
       ContentHolder.new.tap do |obj|
         obj.add_file('fizz', path: 'buzz', original_name: 'buzz.png', mime_type: 'image/png')
         obj.add_file('foobarfoobarfoobar', path: 'content', original_name: 'world.png', mime_type: 'image/png')
         obj.add_file("It's a stream", path: 'descMetadata', original_name: 'metadata.xml', mime_type: 'text/plain')
-        obj.read_users = [@user.user_key]
+        obj.read_users = [user.user_key]
         obj.save!
       end
     end
@@ -39,9 +40,8 @@ describe DownloadsController do
     end
 
     context "when not logged in" do
-
       context "when a specific datastream is requested" do
-        it "should redirect to the root path and display an error" do
+        it "redirects to the root path and display an error" do
           get :show, id: obj, file: "descMetadata"
           expect(response).to redirect_to new_user_session_path
           expect(flash[:alert]).to eq "You are not authorized to access this page."
@@ -50,12 +50,12 @@ describe DownloadsController do
     end
 
     context "when logged in, but without read access" do
-      let(:user) { User.create(email: 'email2@example.com', password: 'password') }
+      let(:user2) { User.create(email: 'email2@example.com', password: 'password') }
       before do
-        sign_in user
+        sign_in user2
       end
       context "when a specific datastream is requested" do
-        it "should redirect to the root path and display an error" do
+        it "redirects to the root path and display an error" do
           get :show, id: obj, file: "descMetadata"
           expect(response).to redirect_to root_path
           expect(flash[:alert]).to eq "You are not authorized to access this page."
@@ -65,7 +65,7 @@ describe DownloadsController do
 
     context "when logged in as reader" do
       before do
-        sign_in @user
+        sign_in user
         allow_any_instance_of(User).to receive(:groups).and_return([])
       end
 
@@ -80,7 +80,7 @@ describe DownloadsController do
         end
 
         it "defaults to returning default download configured by controller" do
-          expect(DownloadsController.default_file_path).to eq "content"
+          expect(described_class.default_file_path).to eq "content"
           get :show, id: obj
           expect(response).to be_successful
           expect(response.headers['Content-Type']).to start_with "image/png"
@@ -90,13 +90,13 @@ describe DownloadsController do
 
         context "when a specific datastream is requested" do
           context "and it doesn't exist" do
-            it "should return :not_found when the datastream doesn't exist" do
+            it "returns :not_found when the datastream doesn't exist" do
               get :show, id: obj, file: "thumbnail"
               expect(response).to be_not_found
             end
           end
           context "and it exists" do
-            it "should return it" do
+            it "returns it" do
               get :show, id: obj, file: "descMetadata"
               expect(response).to be_successful
               expect(response.headers['Content-Type']).to start_with "text/plain"
@@ -105,14 +105,14 @@ describe DownloadsController do
             end
           end
         end
-        it "should support setting disposition to inline" do
-          get :show, id: obj, :disposition => "inline"
+        it "supports setting disposition to inline" do
+          get :show, id: obj, disposition: "inline"
           expect(response).to be_successful
           expect(response.headers['Content-Type']).to start_with "image/png"
           expect(response.headers["Content-Disposition"]).to eq "inline; filename=\"world.png\""
           expect(response.body).to eq 'foobarfoobarfoobar'
         end
-        it "should allow you to specify filename for download" do
+        it "allows you to specify filename for download" do
           get :show, id: obj, "filename" => "my%20dog.png"
           expect(response).to be_successful
           expect(response.headers['Content-Type']).to start_with "image/png"
@@ -180,9 +180,9 @@ describe DownloadsController do
             get 'download' => 'downloads#show'
           end
         end
-        sign_in @user
+        sign_in user
       end
-      it "should use the custom param value to retrieve the asset" do
+      it "uses the custom param value to retrieve the asset" do
         allow(controller).to receive(:asset_param_key).and_return(:object_id)
         get :show, object_id: obj
         expect(response).to be_successful

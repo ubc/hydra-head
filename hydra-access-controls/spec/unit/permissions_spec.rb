@@ -16,15 +16,15 @@ describe Hydra::AccessControls::Permissions do
   end
 
   it "has a set of permissions" do
-    subject.read_groups=['group1', 'group2']
-    subject.edit_users=['user1']
-    subject.read_users=['user2', 'user3']
+    subject.read_groups = ['group1', 'group2']
+    subject.edit_users = ['user1']
+    subject.read_users = ['user2', 'user3']
     expect(subject.permissions.to_a).to all(be_kind_of(Hydra::AccessControls::Permission))
-    expect(subject.permissions.map(&:to_hash)).to match_array [{type: "group", access: "read", name: "group1"},
-        { type: "group", access: "read", name: "group2" },
-        { type: "person", access: "read", name: "user2" },
-        { type: "person", access: "read", name: "user3" },
-        { type: "person", access: "edit", name: "user1" }]
+    expect(subject.permissions.map(&:to_hash)).to match_array [{ type: "group", access: "read", name: "group1" },
+                                                               { type: "group", access: "read", name: "group2" },
+                                                               { type: "person", access: "read", name: "user2" },
+                                                               { type: "person", access: "read", name: "user3" },
+                                                               { type: "person", access: "edit", name: "user1" }]
   end
 
   describe "building a new permission" do
@@ -52,16 +52,17 @@ describe Hydra::AccessControls::Permissions do
       end
       context "when a hash is passed" do
         before do
-          subject.permissions_attributes = {'0' => { type: "group", access:"read", name:"group1" },
-                                            '1' => { type: 'person', access: 'edit', name: 'user2' }}
+          subject.permissions_attributes = { '0' => { type: "group", access: "read", name: "group1" },
+                                             '1' => { type: 'person', access: 'edit', name: 'user2' } }
         end
         it "handles a hash" do
           expect(subject.permissions.size).to eq 3
           expect(subject.permissions.to_a).to all(be_a(Hydra::AccessControls::Permission))
           expect(subject.permissions.map(&:to_hash)).to match_array [
-              { type: "person", access: "edit", name: "jcoyne" },
-              { type: "group", access: "read", name: "group1" },
-              { type: "person", access: "edit", name: "user2" }]
+            { type: "person", access: "edit", name: "jcoyne" },
+            { type: "group", access: "read", name: "group1" },
+            { type: "person", access: "edit", name: "user2" }
+          ]
         end
       end
 
@@ -115,8 +116,9 @@ describe Hydra::AccessControls::Permissions do
           subject.update permissions_attributes: [{ type: "group", access: "read", name: "group1" }]
           subject.update permissions_attributes: [{ type: "group", access: "edit", name: "group1" }]
           expect(subject.permissions.map(&:to_hash)).to match_array [
-                                            { type: "group", access: "edit", name: "group1" },
-                                            { type: "person", access: "edit", name: "jcoyne" }]
+            { type: "group", access: "edit", name: "group1" },
+            { type: "person", access: "edit", name: "jcoyne" }
+          ]
         end
       end
 
@@ -145,7 +147,7 @@ describe Hydra::AccessControls::Permissions do
             end
 
             it "removes permissions on existing groups" do
-              #See what actually gets stored in solr
+              # See what actually gets stored in solr
               indexed_result = ActiveFedora::SolrService.query("id:#{subject.id}").first['edit_access_group_ssim']
               expect(indexed_result).to be_nil
               expect(reloaded).to eq [{ type: "person", access: "edit", name: "jcoyne" }]
@@ -156,7 +158,7 @@ describe Hydra::AccessControls::Permissions do
             let(:simultaneous) do
               [
                 { id: permissions_id, type: "group", access: "read", name: "group1", _destroy: '1' },
-                { id: permissions_id, type: "group", access: "read", name: "group1", }
+                { id: permissions_id, type: "group", access: "read", name: "group1" }
               ]
             end
             before do
@@ -165,20 +167,20 @@ describe Hydra::AccessControls::Permissions do
             end
 
             it "leaves the permissions unchanged" do
-              expect(reloaded).to contain_exactly({name: "jcoyne", type: "person", access: "edit"}, {name: "group1", type: "group", access: "read"})
+              expect(reloaded).to contain_exactly({ name: "jcoyne", type: "person", access: "edit" }, name: "group1", type: "group", access: "read")
             end
           end
 
           context "when destroy is present without an id" do
             let(:missing_id) do
-              [ { type: "group", access: "read", name: "group1", _destroy: '1' } ]
+              [{ type: "group", access: "read", name: "group1", _destroy: '1' }]
             end
             before do
               subject.update permissions_attributes: missing_id
             end
 
             it "leaves the permissions unchanged" do
-              expect(reloaded).to contain_exactly({name: "jcoyne", type: "person", access: "edit"})
+              expect(reloaded).to contain_exactly(name: "jcoyne", type: "person", access: "edit")
             end
           end
 
@@ -188,22 +190,21 @@ describe Hydra::AccessControls::Permissions do
               subject.update permissions_attributes: [
                 { id: permissions_id, type: "group", access: "read", name: "group1", _destroy: '1' },
                 { type: "group", access: "edit", name: "group2" },
-                { type: "person", access: "read", name: "joebob" } 
+                { type: "person", access: "read", name: "joebob" }
               ]
             end
 
             it "removes permissions on existing groups and updates the others" do
               expect(reloaded).to contain_exactly(
-                {name: "jcoyne", type: "person", access: "edit"},
-                {name: "group2", type: "group",  access: "edit"},
-                {name: "joebob", type: "person", access: "read"}
+                { name: "jcoyne", type: "person", access: "edit" },
+                { name: "group2", type: "group",  access: "edit" },
+                name: "joebob", type: "person", access: "read"
               )
             end
           end
         end
 
         context "to a falsy value" do
-
           it "doesn't remove the record" do
             subject.update permissions_attributes: [{ type: "group", access: "read", name: "group1" }]
             subject.update permissions_attributes: [{ id: permissions_id, type: "group", access: "edit", name: "group1", _destroy: '0' }]
@@ -218,7 +219,8 @@ describe Hydra::AccessControls::Permissions do
       before do
         subject.permissions = [
           Hydra::AccessControls::Permission.new(type: "group", access: "edit", name: "group1"),
-          Hydra::AccessControls::Permission.new(type: "person", access: "edit", name: "jcoyne")]
+          Hydra::AccessControls::Permission.new(type: "person", access: "edit", name: "jcoyne")
+        ]
         subject.save!
       end
       it "sets the permissions" do
@@ -228,7 +230,6 @@ describe Hydra::AccessControls::Permissions do
         expect(subject.edit_users).to be_empty
         expect(subject.edit_groups).to be_empty
       end
-
     end
   end
   context "with rightsMetadata" do
@@ -259,12 +260,13 @@ describe Hydra::AccessControls::Permissions do
       subject.set_read_groups(['group-2', 'group-3'], ['group-6'])
       # 'group-7' is not eligible to be revoked
       expect(subject.permissions.map(&:to_hash)).to match_array([
-        { name: 'group-2', type: 'group', access: 'read' },
-        { name: 'group-3', type: 'group', access: 'read' },
-        { name: 'group-7', type: 'group', access: 'read' },
-        { name: 'group-8', type: 'group', access: 'edit' },
-        { name: 'person1', type: 'person', access: 'read' },
-        { name: 'person2', type: 'person', access: 'discover' }])
+                                                                  { name: 'group-2', type: 'group', access: 'read' },
+                                                                  { name: 'group-3', type: 'group', access: 'read' },
+                                                                  { name: 'group-7', type: 'group', access: 'read' },
+                                                                  { name: 'group-8', type: 'group', access: 'edit' },
+                                                                  { name: 'person1', type: 'person', access: 'read' },
+                                                                  { name: 'person2', type: 'person', access: 'discover' }
+                                                                ])
     end
   end
 

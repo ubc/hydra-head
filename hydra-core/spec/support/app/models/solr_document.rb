@@ -1,5 +1,4 @@
 # -*- encoding : utf-8 -*-
-class SolrDocument 
-
+class SolrDocument
   include Blacklight::Solr::Document
 end

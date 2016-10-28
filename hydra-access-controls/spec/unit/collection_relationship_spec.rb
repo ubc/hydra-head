@@ -54,7 +54,7 @@ describe Hydra::AccessControl::CollectionRelationship do
     let!(:one) { relationship.build(name: 'user1', type: 'person', access: 'read') }
     let!(:two) { relationship.build(name: 'user2', type: 'person', access: 'read') }
     it "maps each element through the block" do
-      expect(relationship.map { |o| o.agent_name }).to eq ['user1', 'user2']
+      expect(relationship.map(&:agent_name)).to eq ['user1', 'user2']
     end
   end
 
@@ -113,7 +113,7 @@ describe Hydra::AccessControl::CollectionRelationship do
     let!(:one) { relationship.create(name: 'user1', type: 'person', access: 'read') }
     let!(:two) { relationship.create(name: 'user2', type: 'person', access: 'read') }
     it "invokes the block with each object" do
-      expect { relationship.destroy_all }.to change { Hydra::AccessControls::Permission.count}.by(-2)
+      expect { relationship.destroy_all }.to change { Hydra::AccessControls::Permission.count }.by(-2)
     end
   end
 end

@@ -1,7 +1,5 @@
-RSpec::Matchers.define :be_html_safe do 
-  match do |actual|
-    actual.html_safe?
-  end
+RSpec::Matchers.define :be_html_safe do
+  match(&:html_safe?)
   failure_message_for_should do |actual|
     "Expected that #{actual.inspect} would be marked as html safe"
   end
@@ -10,5 +8,3 @@ RSpec::Matchers.define :be_html_safe do
     "Expected that #{actual.inspect} would not be marked as html safe"
   end
 end
-
-

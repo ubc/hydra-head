@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe "WithAccessRight" do
-
   before do
     class TestClass < ActiveFedora::Base
       include Hydra::AccessControls::Permissions
@@ -17,19 +16,19 @@ describe "WithAccessRight" do
 
   context "not persisted" do
     context "when it is public" do
-      before { subject.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC}
-      its(:authenticated_only_access?) { should be false}
-      its(:private_access?) { should be false}
-      its(:open_access?) { should be true}
-      its(:open_access_with_embargo_release_date?) { should be false}
+      before { subject.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
+      its(:authenticated_only_access?) { is_expected.to be false }
+      its(:private_access?) { is_expected.to be false }
+      its(:open_access?) { is_expected.to be true }
+      its(:open_access_with_embargo_release_date?) { is_expected.to be false }
     end
 
     context "when it is private" do
       before { subject.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
-      its(:authenticated_only_access?) { should be false}
-      its(:private_access?) { should be true}
-      its(:open_access?) { should be false}
-      its(:open_access_with_embargo_release_date?) { should be false}
+      its(:authenticated_only_access?) { is_expected.to be false }
+      its(:private_access?) { is_expected.to be true }
+      its(:open_access?) { is_expected.to be false }
+      its(:open_access_with_embargo_release_date?) { is_expected.to be false }
     end
   end
 
@@ -39,31 +38,30 @@ describe "WithAccessRight" do
       before do
         subject.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
       end
-      its(:authenticated_only_access?) { should be false}
-      its(:private_access?) { should be false}
-      its(:open_access?) { should be true}
-      its(:open_access_with_embargo_release_date?) { should be false}
+      its(:authenticated_only_access?) { is_expected.to be false }
+      its(:private_access?) { is_expected.to be false }
+      its(:open_access?) { is_expected.to be true }
+      its(:open_access_with_embargo_release_date?) { is_expected.to be false }
     end
 
     context "when it is private" do
       before do
         subject.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
       end
-      its(:authenticated_only_access?) { should be false}
-      its(:private_access?) { should be true}
-      its(:open_access?) { should be false}
-      its(:open_access_with_embargo_release_date?) { should be false}
+      its(:authenticated_only_access?) { is_expected.to be false }
+      its(:private_access?) { is_expected.to be true }
+      its(:open_access?) { is_expected.to be false }
+      its(:open_access_with_embargo_release_date?) { is_expected.to be false }
     end
 
     context "when it is authenticated access" do
       before do
         subject.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED
       end
-      its(:authenticated_only_access?) { should be true}
-      its(:private_access?) { should be false}
-      its(:open_access?) { should be false}
-      its(:open_access_with_embargo_release_date?) { should be false}
+      its(:authenticated_only_access?) { is_expected.to be true }
+      its(:private_access?) { is_expected.to be false }
+      its(:open_access?) { is_expected.to be false }
+      its(:open_access_with_embargo_release_date?) { is_expected.to be false }
     end
   end
-
 end
