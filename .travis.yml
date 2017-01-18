@@ -1,6 +1,7 @@
 language: ruby
 sudo: false
-rvm: 2.3.1
+cache: bundler
+rvm: 2.2.3
 
 matrix:
   include:
