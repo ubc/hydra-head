@@ -25,4 +25,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'engine_cart', '~> 1.0'
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'factory_bot_rails'
+  s.add_development_dependency 'github_api'
 end
