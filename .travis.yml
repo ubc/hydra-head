@@ -4,11 +4,15 @@ rvm: 2.5.1
 
 matrix:
   include:
-    - env: "RAILS_VERSION=4.2.10"
+    - env: "ACTIVE_FEDORA_VERSION='~>10.3' RAILS_VERSION=4.2.10"
     - rvm: 2.0
+      env: "RAILS_VERSION=5.1.6"
     - rvm: 2.1
+      env: "RAILS_VERSION=5.1.6"
     - rvm: 2.2
+      env: "RAILS_VERSION=5.1.6"
     - rvm: 2.3
+      env: "RAILS_VERSION=5.1.6"
     - env: "RAILS_VERSION=5.1.6"
     - rvm: 2.4.3
       env: "BLACKLIGHT_VERSION=5.19.2 RAILS_VERSION=5.0.7"
