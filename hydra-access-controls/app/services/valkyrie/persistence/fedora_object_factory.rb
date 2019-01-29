@@ -33,6 +33,9 @@ module Valkyrie
               hash.delete(:internal_resource)
               hash.delete(:new_record)
               hash.delete(:alternate_ids)
+              # Deal with these later
+              hash.delete(:created_at)
+              hash.delete(:updated_at)
 
               valkyrie_id = hash.delete(:id).to_s
               fedora_id = resource.alternate_ids.find {|v| v.to_s.start_with? ActiveFedora.fedora.base_uri }
