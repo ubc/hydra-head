@@ -34,6 +34,24 @@ module Hydra::AccessControls
         doc[ActiveFedora.index_field_mapper.solr_name("embargo_history", :symbol)] = embargo_history unless embargo_history.nil?
       end
     end
+
+    def valkyrie_resource
+      # klass = "Valkyrie::#{self.class.to_s}".constantize
+      @klass ||= "Hydra::AccessControls::Valkyrie::Embargo".constantize
+    rescue NameError
+      nil
+    end
+
+    def attributes_including_linked_ids
+      local_attributes = attributes.dup
+      reflections.keys.each do |key|
+        id_method = "#{key.to_s.singularize}_ids"
+        next unless self.respond_to? id_method
+        local_attributes.merge!(id_method => self.send(id_method)).with_indifferent_access
+      end
+      local_attributes
+    end
+
     protected
 
       # Create the log message used when deactivating an embargo

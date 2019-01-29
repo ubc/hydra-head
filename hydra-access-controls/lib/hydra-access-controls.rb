@@ -4,6 +4,7 @@ require 'blacklight'
 require 'cancan'
 require "deprecation"
 require 'blacklight-access_controls'
+require 'valkyrie'
 
 module Hydra
   extend ActiveSupport::Autoload

@@ -24,6 +24,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "blacklight-access_controls", '~> 0.6.0'
   gem.add_dependency 'cancancan', '~> 1.8'
   gem.add_dependency 'deprecation', '~> 1.0'
+  gem.add_dependency 'valkyrie', '= 2.0.0.RC1'
 
   gem.add_development_dependency "rake", '~> 10.1'
   gem.add_development_dependency 'rspec', '~> 3.1'
