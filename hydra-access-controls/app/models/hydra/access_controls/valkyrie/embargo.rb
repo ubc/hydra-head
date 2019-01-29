@@ -3,12 +3,12 @@ module Hydra::AccessControls
     # Models an embargo for an object. This is where access is low until a point
     # in time where the embargo expires and access is elevated.
     class Embargo < ::Valkyrie::Resource
-      attribute :id, ::Valkyrie::Types::ID.optional
+      # attribute :id, ::Valkyrie::Types::ID.optional
       attribute :visibility_during_embargo, ::Valkyrie::Types::SingleValuedString
       attribute :visibility_after_embargo, ::Valkyrie::Types::SingleValuedString
       attribute :embargo_release_date, ::Valkyrie::Types::DateTime.optional
       # attribute :embargo_history, ::Valkyrie::Types::Array
-      attribute :alternate_ids, Valkyrie::Types::Array
+      attribute :alternate_ids, ::Valkyrie::Types::Set.of(::Valkyrie::Types::ID)
 
       def active?
         (embargo_release_date.present? && Time.zone.today < embargo_release_date.first)

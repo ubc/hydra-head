@@ -9,9 +9,8 @@ module Valkyrie
         # @return [Valkyrie::Resource] Model representation of the AR record.
         def to_resource(object:)
           if object.respond_to? :attributes_including_linked_ids
-            byebug
             vobj = object.valkyrie_resource.new(object.attributes.symbolize_keys)
-            vobj.alternate_ids = [object.id.to_s]
+            vobj.alternate_ids = [Valkyrie::ID.new(object.uri.to_s)]
             vobj
           else
             super
@@ -30,20 +29,17 @@ module Valkyrie
           private
 
             def translate_resource(resource, &block)
-              byebug
               hash = resource.to_h
               hash.delete(:internal_resource)
               hash.delete(:new_record)
-              # hash[:id] = hash[:id].to_s
+              hash.delete(:alternate_ids)
+
               valkyrie_id = hash.delete(:id).to_s
-              # if valkyrie_id.present?
-              #   fedora_agent = resource.fedora_model.find(valkyrie_id.id)
-              #   fedora_agent.update(hash.compact)
-              # else
+              fedora_id = resource.alternate_ids.find {|v| v.to_s.start_with? ActiveFedora.fedora.base_uri }
+
               fedora_agent = resource.fedora_model.new(hash.compact)
-              fedora_agent.id = valkyrie_id
-              # end
-              # block.yield(fedora_agent)
+              fedora_id = fedora_agent.class.uri_to_id(fedora_id) if fedora_id
+              fedora_agent.id = fedora_id || valkyrie_id
               fedora_agent
             end
         # end
