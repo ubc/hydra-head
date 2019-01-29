@@ -10,7 +10,7 @@ module Valkyrie
         def to_resource(object:)
           if object.respond_to? :attributes_including_linked_ids
             vobj = object.valkyrie_resource.new(object.attributes.symbolize_keys)
-            vobj.alternate_ids = [Valkyrie::ID.new(object.uri.to_s)]
+            vobj.alternate_ids = [object.uri.to_s]
             vobj
           else
             super
