@@ -21,14 +21,14 @@ module Valkyrie
           resource_factory.to_resource(object: af_object)
         end
 
-        # Persists a set of resources using ActiveFedora
-        # @param [Array<Valkyrie::Resource>] resources
-        # @return [Array<Valkyrie::Resource>] the persisted/updated resources
-        def save_all(resources:)
-          resources.map do |resource|
-            save(resource: resource)
-          end
-        end
+        # # Persists a set of resources using ActiveFedora
+        # # @param [Array<Valkyrie::Resource>] resources
+        # # @return [Array<Valkyrie::Resource>] the persisted/updated resources
+        # def save_all(resources:)
+        #   resources.map do |resource|
+        #     save(resource: resource)
+        #   end
+        # end
 
         # Deletes a resource persisted using ActiveFedora
         # @param [Valkyrie::Resource] resource
@@ -39,11 +39,11 @@ module Valkyrie
           resource
         end
 
-        # Deletes all resources of a specific Valkyrie Resource type persisted in
-        #   Fedora
-        def wipe!
-          ActiveFedora::Base.delete_all
-        end
+        # # Deletes all resources of a specific Valkyrie Resource type persisted in
+        # #   Fedora
+        # def wipe!
+        #   ActiveFedora::Base.delete_all
+        # end
       end
     end
   end
